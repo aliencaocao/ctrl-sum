@@ -79,8 +79,7 @@ mkdir -p datasets/${data_bin}/hf_cache
 export WANDB_NAME="${data_bin}.${DATE}.${model}.bsz${batch}.uf${update_freq}.gpu${GPUSTR}.${HOSTNAME}"
 export WANDB_DIR="${SAVE}/wandb"
 
-# CUDA_VISIBLE_DEVICES=${GPU} python ctrlsum/token-classification/main.py \
-CUDA_VISIBLE_DEVICES=${GPU} python -m torch.distributed.launch --nproc_per_node 4 ctrlsum/token-classification/main.py \
+CUDA_VISIBLE_DEVICES=0 python3.8 ctrlsum/token-classification/main.py \
   --data_dir datasets/${data_bin}/ \
   --model_name_or_path ${model} \
   --output_dir ${SAVE} \
@@ -88,7 +87,7 @@ CUDA_VISIBLE_DEVICES=${GPU} python -m torch.distributed.launch --nproc_per_node 
   --max_steps ${max_steps} \
   --max_seq_length 512 \
   --per_device_train_batch_size ${batch} \
-  --per_device_eval_batch_size 8 \
+  --per_device_eval_batch_size 1 \
   --gradient_accumulation_steps ${update_freq} \
   --save_steps ${save_steps} \
   --eval_steps ${eval_steps} \
@@ -105,7 +104,7 @@ CUDA_VISIBLE_DEVICES=${GPU} python -m torch.distributed.launch --nproc_per_node 
   --eval_split test \
   ${extra} \
   | tee -a ${SAVE}/${stdout}
-  # --fp16 \
+  --fp16 \
   # --overwrite_cache \
 
 export WANDB_MODE="run"

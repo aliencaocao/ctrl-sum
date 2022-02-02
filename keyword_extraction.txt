@@ -1,0 +1,5 @@
+python scripts/preprocess.py test --mode pipeline
+bash scripts/gpt2_encode.sh test
+bash scripts/binarize_dataset.sh test
+bash scripts/train_seqlabel.sh -g 0 -d test -p cnn_bert_tagger
+python scripts/preprocess.py test --split test --mode process_tagger_prediction --tag-pred cnn_bert_tagger/test_predictions.txt --threshold 0.25 --maximum-word 5 --summary-size 10

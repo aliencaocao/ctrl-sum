@@ -1491,7 +1491,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--sent-separator', type=str, default='|',
         help='if specified, include a sentence separator in the keywords')
-    parser.add_argument('--num-workers', type=int, default=1,
+    parser.add_argument('--num-workers', type=int, default=20,
             help='number of processes in the pipeline mode, 1 to disable')
 
     args = parser.parse_args()
@@ -1549,7 +1549,8 @@ if __name__ == '__main__':
             if args.num_workers > 1:
                 proc = subprocess.run(['wc', '-l', f'{datadir}/{split}.{args.tgt}'], capture_output=True)
                 num_example = int(proc.stdout.decode('utf-8').split()[0])
-                bsz = num_example // args.num_workers + 1
+                bsz = num_example // args.
+num_workers + 1
                 subprocess.run(['split', '-l', f'{bsz}', '-d',
                     f'{datadir}/{split}.{args.src}', f'{datadir}/{split}.{args.src}'])
                 subprocess.run(['split', '-l', f'{bsz}', '-d',

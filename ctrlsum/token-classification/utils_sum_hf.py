@@ -191,7 +191,7 @@ def create_hf_dataset(data_dir: str,
                       model_type: str,
                       local_max_seq_length: Optional[int] = None,
                       overwrite_cache = False,
-                      num_workers=16,
+                      num_workers=1,
                       split=None,
                       ):
     """create a pytorch dataset using huggingface datasets library
