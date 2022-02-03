@@ -13,6 +13,6 @@ targetlang=${3:-target}
 
 fairseq-preprocess --source-lang ${sourcelang} --target-lang ${targetlang} \
     --trainpref ${datadir}/train.bpe --validpref ${datadir}/val.bpe \
-    --destdir data-bin/${dataset} --workers 20 \
+    --destdir data-bin/${dataset} --workers 1 \
     --srcdict ${datadir}/dict.txt --tgtdict ${datadir}/dict.txt
 

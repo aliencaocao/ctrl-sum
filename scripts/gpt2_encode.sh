@@ -23,7 +23,7 @@ do
     --vocab-bpe datasets/${dataset}/vocab.bpe \
     --inputs "datasets/${dataset}/$SPLIT.$LANG" \
     --outputs "datasets/${dataset}/$SPLIT.bpe.$LANG" \
-    --workers 60 \
+    --workers 1 \
     --keep-empty;
   done
 done
