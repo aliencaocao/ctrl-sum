@@ -33,7 +33,6 @@ from transformers import (
 from datasets import load_dataset
 from utils_sum_hf import create_hf_dataset, Split, get_labels
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -79,7 +78,7 @@ class DataTrainingArguments:
         default=128,
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
-            "than this will be truncated, sequences shorter will be padded."
+                    "than this will be truncated, sequences shorter will be padded."
         },
     )
     overwrite_cache: bool = field(
@@ -108,10 +107,10 @@ def main():
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
     if (
-        os.path.exists(training_args.output_dir)
-        and os.listdir(training_args.output_dir)
-        and training_args.do_train
-        and not training_args.overwrite_output_dir
+            os.path.exists(training_args.output_dir)
+            and os.listdir(training_args.output_dir)
+            and training_args.do_train
+            and not training_args.overwrite_output_dir
     ):
         raise ValueError(
             f"Output directory ({training_args.output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome."
@@ -167,24 +166,23 @@ def main():
     )
 
     hf_dataset = create_hf_dataset(
-                    data_dir=data_args.data_dir,
-                    local_tokenizer=tokenizer,
-                    labels=labels,
-                    model_type=config.model_type,
-                    local_max_seq_length=data_args.max_seq_length,
-                    overwrite_cache=data_args.overwrite_cache,
-                )
-
+        data_dir=data_args.data_dir,
+        local_tokenizer=tokenizer,
+        labels=labels,
+        model_type=config.model_type,
+        local_max_seq_length=data_args.max_seq_length,
+        overwrite_cache=data_args.overwrite_cache,
+    )
 
     if training_args.do_train:
         hf_dataset = create_hf_dataset(
-                        data_dir=data_args.data_dir,
-                        local_tokenizer=tokenizer,
-                        labels=labels,
-                        model_type=config.model_type,
-                        local_max_seq_length=data_args.max_seq_length,
-                        overwrite_cache=data_args.overwrite_cache,
-                    )
+            data_dir=data_args.data_dir,
+            local_tokenizer=tokenizer,
+            labels=labels,
+            model_type=config.model_type,
+            local_max_seq_length=data_args.max_seq_length,
+            overwrite_cache=data_args.overwrite_cache,
+        )
 
         if data_args.read_data:
             return
@@ -196,7 +194,7 @@ def main():
     # return
 
     def align_predictions(predictions: np.ndarray, label_ids: np.ndarray) -> Tuple[List[int], List[int]]:
-        label2id={label: i for i, label in enumerate(labels)}
+        label2id = {label: i for i, label in enumerate(labels)}
         preds = np.argmax(predictions, axis=2)
         predictions = scipy.special.softmax(predictions, axis=2)
 
@@ -268,14 +266,14 @@ def main():
         # split = 'test' if data_args.eval_split == 'test' else 'valeval'
         split = data_args.eval_split
         hf_dataset = create_hf_dataset(
-                        data_dir=data_args.data_dir,
-                        local_tokenizer=tokenizer,
-                        labels=labels,
-                        model_type=config.model_type,
-                        local_max_seq_length=data_args.max_seq_length,
-                        overwrite_cache=data_args.overwrite_cache,
-                        split=split,
-                    )
+            data_dir=data_args.data_dir,
+            local_tokenizer=tokenizer,
+            labels=labels,
+            model_type=config.model_type,
+            local_max_seq_length=data_args.max_seq_length,
+            overwrite_cache=data_args.overwrite_cache,
+            split=split,
+        )
         test_dataset = hf_dataset
 
         predictions, label_ids, metrics = trainer.predict(test_dataset)
@@ -288,15 +286,14 @@ def main():
                     logger.info("  %s = %s", key, value)
                     writer.write("%s = %s\n" % (key, value))
 
-
         output_test_predictions_file = os.path.join(training_args.output_dir, f"{data_args.eval_split}_predictions.txt")
         if trainer.is_world_master():
             # Save predictions
             # split = Split.test if data_args.eval_split == 'test' else Split.dev
             # test_examples = read_examples_from_file(data_args.data_dir, split)
             test_examples = load_dataset('json',
-                                          data_files=os.path.join(data_args.data_dir, f'{split}.seqlabel.jsonl'),
-                                          cache_dir=os.path.join(data_args.data_dir, 'hf_cache'))
+                                         data_files=os.path.join(data_args.data_dir, f'{split}.seqlabel.jsonl'),
+                                         cache_dir=os.path.join(data_args.data_dir, 'hf_cache'))
 
             if 'train' in test_examples:
                 test_examples = test_examples['train']

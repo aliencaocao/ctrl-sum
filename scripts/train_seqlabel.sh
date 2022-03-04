@@ -18,7 +18,7 @@ save_steps=2000
 eval_steps=1000
 # lr=5e-5
 
-while getopts ":g:p:d:" arg; do
+while getopts ":g:p:d:length:" arg; do
     case $arg in
         g) GPU="$OPTARG"
         ;;

@@ -11,7 +11,6 @@ but we modify it to use the hugginface/datasets library as the backend
 to deal with large datasets
 """
 
-
 import logging
 import os
 import sys
@@ -23,7 +22,6 @@ from typing import List, Optional, Union, Dict
 from filelock import FileLock
 
 from transformers import PreTrainedTokenizer, is_tf_available, is_torch_available
-
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +82,7 @@ mask_padding_with_zero = None
 tokenizer = None
 max_seq_length = None
 
+
 def convert_examples_to_features(example):
     """ Loads a data file into a list of `InputFeatures`
         `cls_token_at_end` define the location of the CLS token:
@@ -126,7 +125,7 @@ def convert_examples_to_features(example):
     # it easier for the model to learn the concept of sequences.
     #
     # For classification tasks, the first vector (corresponding to [CLS]) is
-    # used as as the "sentence vector". Note that this only makes sense because
+    # used as the "sentence vector". Note that this only makes sense because
     # the entire model is fine-tuned.
     tokens += [sep_token]
     label_ids += [pad_token_label_id]
@@ -164,11 +163,10 @@ def convert_examples_to_features(example):
         segment_ids += [pad_token_segment_id] * padding_length
         label_ids += [pad_token_label_id] * padding_length
 
-    assert len(input_ids) == max_seq_length
-    assert len(input_mask) == max_seq_length
-    assert len(segment_ids) == max_seq_length
-    assert len(label_ids) == max_seq_length
-
+    assert len(input_ids) == max_seq_length, f'{len(input_ids)} != {max_seq_length}'
+    assert len(input_mask) == max_seq_length, f'{len(input_mask)} != {max_seq_length}'
+    assert len(segment_ids) == max_seq_length, f'{len(segment_ids)} != {max_seq_length}'
+    assert len(label_ids) == max_seq_length, f'{len(label_ids)} != {max_seq_length}'
 
     if "token_type_ids" not in tokenizer.model_input_names:
         segment_ids = None
@@ -185,12 +183,13 @@ def convert_examples_to_features(example):
             'token_type_ids': segment_ids,
             }
 
+
 def create_hf_dataset(data_dir: str,
                       local_tokenizer: PreTrainedTokenizer,
                       labels: List[str],
                       model_type: str,
                       local_max_seq_length: Optional[int] = None,
-                      overwrite_cache = False,
+                      overwrite_cache=False,
                       num_workers=1,
                       split=None,
                       ):
@@ -211,20 +210,20 @@ def create_hf_dataset(data_dir: str,
 
     max_seq_length = local_max_seq_length
     tokenizer = local_tokenizer
-    cls_token_at_end=bool(model_type in ["xlnet"])
+    cls_token_at_end = bool(model_type in ["xlnet"])
     # xlnet has a cls token at the end
-    cls_token=tokenizer.cls_token
-    cls_token_segment_id=2 if model_type in ["xlnet"] else 0
-    sep_token=tokenizer.sep_token
-    sep_token_extra=False
+    cls_token = tokenizer.cls_token
+    cls_token_segment_id = 2 if model_type in ["xlnet"] else 0
+    sep_token = tokenizer.sep_token
+    sep_token_extra = False
     # roberta uses an extra separator b/w pairs of sentences, cf. github.com/pytorch/fairseq/commit/1684e166e3da03f5b600dbb7855cb98ddfcd0805
-    pad_on_left=bool(tokenizer.padding_side == "left")
-    pad_token=tokenizer.pad_token_id
-    pad_token_segment_id=tokenizer.pad_token_type_id
-    pad_token_label_id=nn.CrossEntropyLoss().ignore_index
+    pad_on_left = bool(tokenizer.padding_side == "left")
+    pad_token = tokenizer.pad_token_id
+    pad_token_segment_id = tokenizer.pad_token_type_id
+    pad_token_label_id = nn.CrossEntropyLoss().ignore_index
 
-    sequence_a_segment_id=0
-    mask_padding_with_zero=True
+    sequence_a_segment_id = 0
+    mask_padding_with_zero = True
 
     cache_dir = os.path.join(data_dir, 'hf_cache')
     if overwrite_cache:
@@ -232,23 +231,21 @@ def create_hf_dataset(data_dir: str,
         os.makedirs(os.path.join(data_dir, 'hf_cache'))
 
     dataset = load_dataset('json',
-                            data_files={
-                                'train': os.path.join(data_dir, 'train.seqlabel.jsonl'),
-                                'validation': os.path.join(data_dir, 'val.seqlabel.jsonl'),
-                                'test': os.path.join(data_dir, 'test.seqlabel.jsonl'),
-                            } if split is None else os.path.join(data_dir, f'{split}.seqlabel.jsonl'),
-                            cache_dir=os.path.join(data_dir, 'hf_cache'),
-                            )
+                           data_files={  # only care about test here if only doing inference
+                               # 'train': os.path.join(data_dir, 'train.seqlabel.jsonl'),
+                               # 'validation': os.path.join(data_dir, 'val.seqlabel.jsonl'),
+                               'test': os.path.join(data_dir, 'test.seqlabel.jsonl'),
+                           } if split is None else os.path.join(data_dir, f'{split}.seqlabel.jsonl'),
+                           cache_dir=os.path.join(data_dir, 'hf_cache'),
+                           )
 
-    split_list = ['train', 'validation', 'test']
+    # split_list = ['train', 'validation', 'test']
+    split_list = ['test']
 
     if split is None:
         dataset = dataset.map(convert_examples_to_features,
                               num_proc=num_workers,
-                              cache_file_names={x: os.path.join(cache_dir, f'cache_mapped_{x}.arrow')
-                                  for x in split_list
-                                  },
-                              )
+                              cache_file_names={x: os.path.join(cache_dir, f'cache_mapped_{x}.arrow') for x in split_list})
     else:
         # 'train' is the default split name
         dataset = dataset['train']
@@ -257,9 +254,8 @@ def create_hf_dataset(data_dir: str,
                               cache_file_name=os.path.join(cache_dir, f'cache_mapped_{split}.arrow'),
                               )
 
-
     dataset.set_format(columns=['input_ids',
-        'token_type_ids', 'attention_mask', 'label_ids'])
+                                'token_type_ids', 'attention_mask', 'label_ids'])
 
     return dataset
 
