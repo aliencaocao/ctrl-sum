@@ -39,9 +39,9 @@ done
 
 outfix_tune="sumlen${sumlen}.mw${maxword}.tune"
 cd control_summary/datasets/${data}
-python preprocess.py --mode post_tag --split ${split} --summary-size ${sumlen} --maximum-word ${maxword} --threshold ${ts} --outfix ${outfix_tune} --tag-pred ${pred}
-python preprocess.py --mode paste --split ${split} --src sourcetrunc --paste-key ts${ts}.${outfix_tune}.predwords
-python preprocess.py --mode add_leading_space --split ${split} --src ts${ts}.${outfix_tune}.predwordssourcetrunc --tgt targettrunc
+python3.8 preprocess.py --mode post_tag --split ${split} --summary-size ${sumlen} --maximum-word ${maxword} --threshold ${ts} --outfix ${outfix_tune} --tag-pred ${pred}
+python3.8 preprocess.py --mode paste --split ${split} --src sourcetrunc --paste-key ts${ts}.${outfix_tune}.predwords
+python3.8 preprocess.py --mode add_leading_space --split ${split} --src ts${ts}.${outfix_tune}.predwordssourcetrunc --tgt targettrunc
 
 src="${split}.ts${ts}.${outfix_tune}.predwordssourcetrunclead"
 cd ../../../

@@ -10,7 +10,7 @@ A simple launcher script for TPU training
 Inspired by https://github.com/pytorch/pytorch/blob/master/torch/distributed/launch.py
 
 ::
-    >>> python xla_spawn.py --num_cores=NUM_CORES_YOU_HAVE
+    >>> python3.8 xla_spawn.py --num_cores=NUM_CORES_YOU_HAVE
                YOUR_TRAINING_SCRIPT.py (--arg1 --arg2 --arg3 and all other
                arguments of your training script)
 

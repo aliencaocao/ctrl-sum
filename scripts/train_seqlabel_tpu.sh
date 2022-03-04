@@ -89,7 +89,7 @@ export WANDB_DIR="${SAVE}/wandb"
 export TPU_IP_ADDRESS=${TPU}
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 
-python control_summary/scripts/xla_spawn.py --num_cores ${num_cores} \
+python3.8 control_summary/scripts/xla_spawn.py --num_cores ${num_cores} \
   control_summary/token-classification/main_tpu.py \
   --data_dir control_summary/datasets/${data_bin}/ \
   --labels control_summary/datasets/${data_bin}/labels.txt \

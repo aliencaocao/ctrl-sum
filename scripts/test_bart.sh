@@ -58,7 +58,7 @@ do
     # echo "gpu ${gpu_s}"
     printf -v j "%02d" $i
     # echo "j: $j"
-    CUDA_VISIBLE_DEVICES=${gpu_s} python scripts/generate_bart.py --exp ${exp} --src ${src}.$j --dataset ${data} --outfix ${outfix} --lenpen ${lenpen} --min-len ${minlen} ${extra} &
+    CUDA_VISIBLE_DEVICES=${gpu_s} python3.8 scripts/generate_bart.py --exp ${exp} --src ${src}.$j --dataset ${data} --outfix ${outfix} --lenpen ${lenpen} --min-len ${minlen} ${extra} &
 done
 
 # wait for the decoding to finish

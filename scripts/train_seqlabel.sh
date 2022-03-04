@@ -79,7 +79,7 @@ mkdir -p datasets/${data_bin}/hf_cache
 export WANDB_NAME="${data_bin}.${DATE}.${model}.bsz${batch}.uf${update_freq}.gpu${GPUSTR}.${HOSTNAME}"
 export WANDB_DIR="${SAVE}/wandb"
 
-CUDA_VISIBLE_DEVICES=0 python3.8 ctrlsum/token-classification/main.py \
+CUDA_VISIBLE_DEVICES=${GPU} python3.8 ctrlsum/token-classification/main.py \
   --data_dir datasets/${data_bin}/ \
   --model_name_or_path ${model} \
   --output_dir ${SAVE} \
@@ -95,7 +95,6 @@ CUDA_VISIBLE_DEVICES=0 python3.8 ctrlsum/token-classification/main.py \
   --learning_rate ${lr} \
   --weight_decay 0.01 \
   --warmup_steps 500 \
-  --evaluate_during_training \
   --logging_steps 100 \
   --save_total_limit 10 \
   --logging_dir ${SAVE} \
@@ -104,7 +103,5 @@ CUDA_VISIBLE_DEVICES=0 python3.8 ctrlsum/token-classification/main.py \
   --eval_split test \
   ${extra} \
   | tee -a ${SAVE}/${stdout}
-  --fp16 \
-  # --overwrite_cache \
 
 export WANDB_MODE="run"

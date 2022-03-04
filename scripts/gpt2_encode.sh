@@ -18,7 +18,7 @@ for SPLIT in train val
 do
   for LANG in ${sourcelang} ${targetlang}
   do
-    python scripts/multiprocessing_bpe_encoder.py \
+    python3.8 scripts/multiprocessing_bpe_encoder.py \
     --encoder-json datasets/${dataset}/encoder.json \
     --vocab-bpe datasets/${dataset}/vocab.bpe \
     --inputs "datasets/${dataset}/$SPLIT.$LANG" \

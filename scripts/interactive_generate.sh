@@ -38,7 +38,7 @@ else
 fi
 
 cat control_summary/datasets/cnn_dm_bart/test.tok.mosebpe40000.source512 | \
-  CUDA_VISIBLE_DEVICES=${GPU} python interactive.py control_summary/data-bin/${data} \
+  CUDA_VISIBLE_DEVICES=${GPU} python3.8 interactive.py control_summary/data-bin/${data} \
     --path ${LOADDIR}/checkpoint_${postfix}.pt -s ${src} -t ${tgt} \
     --task translation \
     ${gen_str} --fp16 --batch-size 100 --buffer-size 100 --remove-bpe > ${LOADDIR}/gen_interactive_${strategy}_${postfix}.out
