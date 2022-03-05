@@ -144,7 +144,9 @@ def main():
     # Distributed training:
     # The .from_pretrained methods guarantee that only one local process can concurrently
     # download model & vocab.
-
+    import time
+    start = time.time()
+    print("loading model")
     config = AutoConfig.from_pretrained(
         model_args.config_name if model_args.config_name else model_args.model_name_or_path,
         num_labels=num_labels,
@@ -166,7 +168,9 @@ def main():
         cache_dir=model_args.cache_dir,
         local_files_only=True
     )
-
+    print("loading model time:", time.time() - start)
+    start = time.time()
+    print("Making DS")
     hf_dataset = create_hf_dataset(
         data_dir=data_args.data_dir,
         local_tokenizer=tokenizer,
@@ -175,6 +179,7 @@ def main():
         local_max_seq_length=data_args.max_seq_length,
         overwrite_cache=data_args.overwrite_cache,
     )
+    print("Making DS time:", time.time() - start)
 
     if training_args.do_train:
         hf_dataset = create_hf_dataset(
