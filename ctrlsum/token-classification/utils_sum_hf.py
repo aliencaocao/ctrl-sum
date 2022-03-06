@@ -67,6 +67,10 @@ from torch import nn
 from torch.utils.data.dataset import Dataset
 
 from datasets import load_dataset
+from datasets.utils.download_manager import GenerateMode
+from datasets import DownloadConfig
+
+download_config = DownloadConfig(cache_dir='cache', local_files_only=True, use_etag=False, num_proc=8)
 
 # this is ugly, but to use multiprocessing in datasets.map, seems
 # I need to define the map function at the top level
@@ -225,32 +229,30 @@ def create_hf_dataset(data_dir: str,
     sequence_a_segment_id = 0
     mask_padding_with_zero = True
 
-    cache_dir = os.path.join(data_dir, 'hf_cache')
+    cache_dir = 'hf_cache'
     if overwrite_cache:
         shutil.rmtree(cache_dir)
-        os.makedirs(os.path.join(data_dir, 'hf_cache'))
-
+        os.makedirs('hf_cache')
     dataset = load_dataset('json',
-                           data_files={  # only care about test here if only doing inference
-                               # 'train': os.path.join(data_dir, 'train.seqlabel.jsonl'),
-                               # 'validation': os.path.join(data_dir, 'val.seqlabel.jsonl'),
-                               'test': os.path.join(data_dir, 'test.seqlabel.jsonl'),
-                           } if split is None else os.path.join(data_dir, f'{split}.seqlabel.jsonl'),
-                           cache_dir=os.path.join(data_dir, 'hf_cache'),
+                           data_files=os.path.join(data_dir, f'{split}.seqlabel.jsonl'),
+                           cache_dir='hf_cache',
+                           keep_in_memory=True,
+                           ignore_verifications=True,
+                           download_config=download_config,
+                           download_mode=GenerateMode.REUSE_CACHE_IF_EXISTS
                            )
-
     # split_list = ['train', 'validation', 'test']
     split_list = ['test']
 
     if split is None:
         dataset = dataset.map(convert_examples_to_features,
-                              num_proc=num_workers,
+                              num_proc=8,
                               cache_file_names={x: os.path.join(cache_dir, f'cache_mapped_{x}.arrow') for x in split_list})
     else:
         # 'train' is the default split name
         dataset = dataset['train']
         dataset = dataset.map(convert_examples_to_features,
-                              num_proc=num_workers,
+                              num_proc=8,
                               cache_file_name=os.path.join(cache_dir, f'cache_mapped_{split}.arrow'),
                               )
 

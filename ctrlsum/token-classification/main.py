@@ -99,12 +99,7 @@ def main():
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
     parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
-    if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
-        # If we pass only one argument to the script and it's the path to a json file,
-        # let's parse it to get our arguments.
-        model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
-    else:
-        model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     if (
             os.path.exists(training_args.output_dir)
             and os.listdir(training_args.output_dir)
@@ -148,7 +143,7 @@ def main():
     start = time.time()
     print("loading model")
     config = AutoConfig.from_pretrained(
-        model_args.config_name if model_args.config_name else model_args.model_name_or_path,
+        model_args.config_name if model_args.config_name else model_args.tagger_model_dir,
         num_labels=num_labels,
         id2label=label_map,
         label2id={label: i for i, label in enumerate(labels)},
@@ -156,14 +151,14 @@ def main():
         local_files_only=True
     )
     tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
+        model_args.tokenizer_name if model_args.tokenizer_name else model_args.tagger_model_dir,
         cache_dir=model_args.cache_dir,
         use_fast=model_args.use_fast,
         local_files_only=True
     )
     model = AutoModelForTokenClassification.from_pretrained(
-        model_args.model_name_or_path,
-        from_tf=bool(".ckpt" in model_args.model_name_or_path),
+        model_args.tagger_model_dir,
+        from_tf=bool(".ckpt" in model_args.tagger_model_dir),
         config=config,
         cache_dir=model_args.cache_dir,
         local_files_only=True
@@ -243,7 +238,7 @@ def main():
     # Training
     if training_args.do_train:
         trainer.train(
-            model_path=model_args.model_name_or_path if os.path.isdir(model_args.model_name_or_path) else None
+            model_path=model_args.tagger_model_dir if os.path.isdir(model_args.tagger_model_dir) else None
         )
         trainer.save_model()
         # For convenience, we also re-save the tokenizer to the same directory,
